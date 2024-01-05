@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Image from "next/image";
 import Header from "../components/Header";
 import Banner from "@/components/Banner";
 import requests from "@/utils/requests";
@@ -9,6 +8,9 @@ import useAuth from "@/hooks/useAuth";
 import { useRecoilValue } from "recoil";
 import { modalState } from "@/atoms/modalAtom";
 import Modal from "@/components/Modal";
+import Plans from "@/components/Plans";
+import { Product, getProducts } from "@stripe/firestore-stripe-payments";
+import payments from "@/lib/stripe";
 
 interface Props {
   netflixOriginals: Movie[];
@@ -19,6 +21,7 @@ interface Props {
   horrorMovies: Movie[];
   romanceMovies: Movie[];
   documentaries: Movie[];
+  products: Product[];
 }
 
 const Home = ({
@@ -30,17 +33,24 @@ const Home = ({
   romanceMovies,
   topRated,
   trendingNow,
+  products,
 }: Props) => {
+  console.log(products);
   const { loading } = useAuth();
   const showModal = useRecoilValue(modalState);
+  const subscription = false;
 
-  if (loading) {
+  if (loading || subscription === null) {
     return null;
   }
 
+  if (!subscription) return <Plans products={products} />;
+
   return (
-    <div className={`relative h-screen bg-gradient-to-b lg:h-[140vh] 
-    ${showModal && "!h-screen overflow-hidden"}`}>
+    <div
+      className={`relative h-screen bg-gradient-to-b lg:h-[140vh] 
+    ${showModal && "!h-screen overflow-hidden"}`}
+    >
       <Head>
         <title>Home - Netflix</title>
         <link rel="icon" href="/favicon.ico"></link>
@@ -67,6 +77,13 @@ const Home = ({
 export default Home;
 
 export const getServerSideProps = async () => {
+  const products = await getProducts(payments, {
+    includePrices: true,
+    activeOnly: true,
+  })
+    .then((res) => res)
+    .catch((error) => console.log(error.message));
+
   const [
     netflixOriginals,
     trendingNow,
@@ -97,7 +114,7 @@ export const getServerSideProps = async () => {
       horrorMovies: horrorMovies.results,
       romanceMovies: romanceMovies.results,
       documentaries: documentaries.results,
-      products: null,
+      products,
     },
   };
 };

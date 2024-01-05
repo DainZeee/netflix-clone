@@ -1,11 +1,50 @@
-/** @type {import('next').NextConfig} */
+const withTM = require('next-transpile-modules')(['@stripe/firestore-stripe-payments']);
+
 const nextConfig = {
   reactStrictMode: true,
-  images: {
-    domains: ['image.tmdb.org', 'rb.gy' ]
-  }
-  
-  
-}
+  images:{
+    dangerouslyAllowSVG: true,
+    remotePatterns: [
+    {
+      protocol: 'https',
+      hostname: 'rb.gy',
+      port: '',
+      pathname: '/ulxxee/',
 
-module.exports = nextConfig
+
+
+    },
+    {
+      protocol: 'https',
+      hostname: 'rb.gy',
+      port: '',
+      pathname: '/g1pwyx/',
+
+
+
+    },
+    {
+      protocol: 'https',
+      hostname: 'image.tmdb.org',
+      port: '',
+
+    },
+    {
+      protocol: 'https',
+      hostname: 'rb.gy',
+      port: '',
+      pathname: '/p2hphi/**',
+
+
+
+    }
+
+
+
+
+    ]
+}
+}
+const { withSuperjson } = require('next-superjson')
+
+module.exports = withSuperjson()(withTM(nextConfig));
